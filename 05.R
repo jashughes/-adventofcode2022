@@ -23,7 +23,7 @@ operate <- function(stacks, instr, transf) {
 
 move <- function(st, n, fr, dst, transf) {
   st[[dst]] <- c(st[[dst]], transf(tail(st[[fr]], n)))
-  st[[fr]] <- st[[fr]][1:(length(st[[fr]]) - n)]
+  st[[fr]] <- head(st[[fr]], length(st[[fr]]) - n)
   st
 }
 
