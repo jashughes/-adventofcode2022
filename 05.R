@@ -1,12 +1,12 @@
 # Parse input
 inp <- readLines("05.txt", warn = FALSE)
-br <- which(inp == "")
-ns <- max(as.numeric(strsplit(inp[br-1],"")[[1]]), na.rm = T)
-mstacks <- inp[1:(br-2)] |> 
+br <- which(inp == "") # breakpoint between stacks & instructions
+n_stacks <- max(as.numeric(strsplit(inp[br - 1], "")[[1]]), na.rm = T)
+mstacks <- inp[1:(br - 2)] |> 
   strsplit("") |>
-  lapply(`[`, seq(2, 4 * ns, 4)) |>
+  lapply(`[`, seq(2, 4 * n_stacks, 4)) |>
   unlist() |>
-  matrix(ncol = ns, byrow = T)
+  matrix(ncol = n_stacks, byrow = T)
 stacks <- lapply(split(mstacks, col(mstacks)), function(x) setdiff(rev(x), " "))
 instr <- inp[(br + 1):length(inp)]
 
