@@ -1,32 +1,23 @@
-inp <- strsplit(readLines("08.txt", warn = FALSE), "")
-d <- length(inp)
-m <- inp |>
-  unlist() |>
-  as.numeric() |>
-  matrix(byrow = T, nrow = d)
-dir_score <- function(v, tree) { 
-  ifelse(any(v >= tree), length(v[1:which(v >= tree)[1]]), length(v))
-} 
+inp <- strsplit(readLines("09.txt", warn = FALSE), " ")
+key <- list(R = c(1, 0), L = c(-1, 0), U = c(0, 1), D = c(0, -1))
+save_pos <- function(pos, seen) {unique(c(seen, paste0(pos[1], "_", pos[2])))}
 
-vis <- matrix(rep(TRUE, d * d), nrow = d)
-scenic <- matrix(rep(0, d * d), nrow = d)
-for (i in 2:(d - 1)) {
-  for (j in 2:(d - 1)) {
-    tree <- m[i, j]
-    vis[i,j] <- any(c(
-      all(m[1:(i-1), j] < tree), 
-      all(m[(i+1):d, j] < tree), 
-      all(m[i, 1:(j-1)] < tree), 
-      all(m[i, (j+1):d] < tree)
-    )) 
-    scenic[i,j] <- prod(c(
-      dir_score(rev(m[1:(i-1), j]), tree), 
-      dir_score(m[(i+1):d, j], tree), 
-      dir_score(rev(m[i, 1:(j-1)]), tree), 
-      dir_score(m[i, (j+1):d], tree)
-    )) 
+knotted_string <- function(inp, nk, k = key) {
+  pos <- lapply(1:nk, function(x) c(0, 0))
+  seen <- save_pos(pos[[nk]], c())
+  
+  for (i in inp) {
+    for (step in 1:as.numeric(i[2])) {
+      pos[[1]] <- pos[[1]] + k[[i[1]]]
+      for (knot in 2:nk) {
+        taught <- pos[[knot - 1]] - pos[[knot]]
+        pos[[knot]] <- pos[[knot]] + sign(taught) * any(abs(taught) > 1)
+      }
+      seen <- save_pos(pos[[nk]], seen)
+    }
   }
+  save_pos(pos[[nk]], seen)
 }
 
-message("Part 1: ", sum(vis))
-message("Part 2: ", max(scenic))
+message("Part 1: ", length(knotted_string(inp, 2)))
+message("Part 2: ", length(knotted_string(inp, 10)))
