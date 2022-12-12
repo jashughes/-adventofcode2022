@@ -10,27 +10,10 @@ ifF <- extract_num(inp[which(grepl("If false", inp))]) + 1
 
 inspect <- function(old, op, modby = 3, new = NULL) {
   eval(parse(text = op))
-  print(new)
   floor(new/modby)
 } 
-counts <- rep(0, length(op))
 
-for (r in 1:20) {
-  for (monkey in 1:length(op)) {
-    items <- inv[[monkey]]
-    inv[[monkey]] <- numeric(0)
-    if (length(items) > 0) {
-      for (i in 1:length(items)) {
-        item <- inspect(items[i], op[monkey])
-        counts[monkey] <- counts[monkey] + 1
-        pass_to <- ifelse(item %% test[monkey] == 0, ifT[monkey], ifF[monkey])
-        inv[[pass_to]] <- c(inv[[pass_to]], item)
-      }
-    }
-  }
-}
-
-play <- function(inv, op, test, ifT, ifF, reps = 20, modby = 3){
+play1 <- function(inv, op, test, ifT, ifF, reps = 20, modby = 3){
   counts <- rep(0, length(op))
   
   for (r in 1:reps) {
@@ -50,9 +33,30 @@ play <- function(inv, op, test, ifT, ifF, reps = 20, modby = 3){
   list(counts = counts, inv = inv)
 }
 
-counts <- play(inv, op, test, ifT, ifF, 20, 3)
-counts <- play(inv, op, test, ifT, ifF, 7, 1)
 
-message("Part 1: ", prod(sort(counts, decreasing = TRUE)[1:2]))
+play2 <- function(inv, op, test, ifT, ifF, reps = 20, modby = 3){
+  counts <- rep(0, length(op))
+  iv <- lapply(inv, lapply, function(x) x %% test)
+  
+  for (r in 1:reps) {
+    for (monkey in 1:length(op)) {
+      items <- iv[[monkey]]
+      iv[[monkey]] <- list()
+      if (length(items) > 0) {
+        for (i in 1:length(items)) {
+          item <- inspect(items[[i]], op[monkey], modby) %% test
+          counts[monkey] <- counts[monkey] + 1
+          pass_to <- ifelse(item[monkey] == 0, ifT[monkey], ifF[monkey])
+          iv[[pass_to]] <- c(iv[[pass_to]], list(item))
+        }
+      }
+    }
+  }
+  counts
+}
 
+counts1 <- play1(inv, op, test, ifT, ifF, 20, 3)
+counts2 <- play2(inv, op, test, ifT, ifF, 10000, 1)
 
+message("Part 1: ", prod(sort(counts1, decreasing = TRUE)[1:2]))
+message("Part 2: ", prod(sort(counts2, decreasing = TRUE)[1:2]))
