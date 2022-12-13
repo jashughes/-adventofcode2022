@@ -2,6 +2,8 @@ inp <- readLines("07.txt", warn = FALSE)
 
 fps <- function(fp) paste0(fp, collapse = "_")
 path <- function(fp, nw) if (nw == "..") { fp[-length(fp)] } else { c(fp, nw) }
+sub_dirs <- function(fp, d) c(fp, names(d)[grepl(paste0("^",fp,"_"), names(d))])
+dir_sizes <- function(d) sapply(names(d), function(x) sum(d[sub_dirs(x, d)]))
 
 get_dir_structure <- function(inp) {
   dirs <- c(top = 0)
@@ -16,15 +18,6 @@ get_dir_structure <- function(inp) {
     }
   }
   dirs
-}
-
-dir_sizes <- function(dirs, lim = 100000) {
-  opts <- setNames(rep(0, length(dirs)), names(dirs))
-  for (nm in names(dirs)) {
-    sub_dirs <- c(nm, names(dirs)[grepl(paste0("^", nm, "_"), names(dirs))])
-    opts[nm]<- sum(dirs[sub_dirs])
-  }
-  opts
 }
 
 dirs <- get_dir_structure(inp)
