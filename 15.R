@@ -6,6 +6,7 @@ sb <- regmatches(inp, gregexpr('\\(?[0-9-]+', inp)) |>
 
 overlaps <- function(a1,a2,b1,b2) {(a1<=b1 & a2>=b1) | (b1<=a1 & b2>=a1)}
 signal_strength <- function(v) v[1] * 4000000 + v[2]
+Nblock <- function(r,s,y) sum(r[,2]-r[,1])+nrow(r)-nrow(unique(s[s[,4]==y,3:4]))
 manhattan <- function(m) abs(m[3] - m[1]) + abs(m[4] - m[2])
 
 blocked_on_y <- function(sb, y = 2000000) {
@@ -23,11 +24,6 @@ blocked_on_y <- function(sb, y = 2000000) {
   ranges
 }
 
-n_blocked <- function(sb, y = 2000000) {
-  r <- blocked_on_y(sb)
-  sum(r[,2]-r[,1])+nrow(r)-nrow(unique(sb[sb[,4] == y,3:4]))
-}
-
 find_location <- function(sb, y_min = 0, y_max = 4000000) {
   for (y in y_min:y_max) {
     r <- blocked_on_y(sb,y)
@@ -37,6 +33,6 @@ find_location <- function(sb, y_min = 0, y_max = 4000000) {
   }
 }
 
-message("Part 1: ", n_blocked(sb))
+message("Part 1: ", Nblock(blocked_on_y(sb, 2000000), sb, y = 2000000))
 message("Part 2: ", signal_strength(find_location(sb)))
 
