@@ -1,4 +1,4 @@
-inp <- readLines("15.txt", warn = FALSE)
+inp <- readLines("15_test.txt", warn = FALSE)
 sb <- regmatches(inp, gregexpr('\\(?[0-9-]+', inp)) |>
   unlist() |> 
   as.numeric() |>
@@ -7,14 +7,11 @@ sb <- regmatches(inp, gregexpr('\\(?[0-9-]+', inp)) |>
 manhattan <- function(m1, m2) abs(m2[1] - m1[1]) + abs(m2[2] - m1[2])
 overlaps <- function(a1,a2,b1,b2) {(a1<=b1 & a2>=b1) | (b1<=a1 & b2>=a1)}
 signal_strength <- function(v) v[1] * 4000000 + v[2]
+manhattan <- function(m) abs(m[3] - m[1]) + abs(m[4] - m[2])
 
 blocked_on_y <- function(sb, y = 2000000) {
-  itx <- c()
-  for (r in 1:nrow(sb)) {
-    dx <- manhattan(sb[r,1:2], sb[r,3:4]) - abs(sb[r,2] - y)
-    if (dx > 0) itx <- c(itx, sb[r,1]-dx, sb[r,1] + dx)
-  }
-  itxm <- matrix(itx, ncol = 2, byrow = T)
+  dx <- apply(sb,1, manhattan) - abs(sb[,2] - y)
+  itxm <- matrix(sb[which(dx > 0),1] + c(-dx[dx>0], dx[dx>0]), ncol = 2)
   ranges <- itxm[1,, drop = F]
   for (r in 2:nrow(itxm)) { 
     b <- itxm[r,,drop=F]
