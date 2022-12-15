@@ -11,7 +11,7 @@ str2idx <- function(s) {
     ) |>
     t()
 }
-expand <- function(m) { # has duplicates
+expand <- function(m) {
   Reduce(
     rbind, 
     lapply(1:(nrow(m)-1), function(x) {
@@ -44,15 +44,12 @@ move <- function(pos, cave) {
 
 pour <- function(cave, origin) {
   pos <- origin
-  tot <- 0
   repeat {
     new_pos <- move(pos, cave)
-    if (is.null(new_pos)) return(tot)
-    if (all(pos == new_pos) && all(new_pos == origin)) return(tot + 1)# top
-    if (all(pos == new_pos)) { # sand comes to rest
-      cave[pos] <- 1
-      # new sand
-      tot <- tot + 1
+    if (is.null(new_pos)) return(sum(cave == 2))
+    if (all(pos == new_pos)) {
+      cave[pos] <- 2
+      if(all(new_pos == origin)) return(sum(cave == 2))
       pos <- origin
     } else {
       pos <- new_pos
